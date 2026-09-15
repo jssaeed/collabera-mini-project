@@ -48,11 +48,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-# No database for now — this project serves dummy data straight from Python
-# (see api/data.py). django.contrib.admin/auth/sessions/contenttypes are
-# deliberately left out of INSTALLED_APPS since they all require a DB; add
-# them back (and a DATABASE_URL in .env) whenever real persistence is needed.
-DATABASES = {}
+DATABASES = {
+    'default': env.db('DATABASE_URL'),
+}
 
 
 # Internationalization

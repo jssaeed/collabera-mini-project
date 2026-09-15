@@ -1,11 +1,11 @@
 """Service layer: business logic and orchestration. No HTTP, no data access —
-only talks to repositories."""
+only talks to repositories (reads are passed by repository to make )."""
 
 from decimal import Decimal
 
-from .data import AccountDict, TransactionDict, UserDict
 from .exceptions import AccountNotFound, InsufficientFunds, InvalidAmount, UserNotFound
 from .repositories import AccountRepository, TransactionRepository, UserRepository
+from .types import AccountDict, TransactionDict, UserDict
 
 
 class UserService:
