@@ -1,8 +1,8 @@
-from django.urls import path
+from django.urls import URLPattern, path
 
 from . import views
 
-urlpatterns = [
+urlpatterns: list[URLPattern] = [
     path('customers/', views.customer_list, name='customer-list'),
     path('customers/<int:customer_id>/', views.customer_detail, name='customer-detail'),
     path('customers/<int:customer_id>/accounts/', views.account_create, name='account-create'),
