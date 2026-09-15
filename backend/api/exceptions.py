@@ -1,0 +1,18 @@
+"""Domain exceptions raised by the service layer. Controllers catch these
+and translate them into HTTP responses — services never know about HTTP."""
+
+
+class CustomerNotFound(Exception):
+    pass
+
+
+class AccountNotFound(Exception):
+    pass
+
+
+class InvalidAmount(Exception):
+    pass
+
+
+class InsufficientFunds(Exception):
+    pass
