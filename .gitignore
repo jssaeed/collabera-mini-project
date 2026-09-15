@@ -14,4 +14,6 @@ media/
 .vscode/
 .idea/
 
+# local testing
 local/
+*postman/

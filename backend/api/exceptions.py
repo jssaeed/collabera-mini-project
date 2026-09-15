@@ -2,7 +2,7 @@
 and translate them into HTTP responses — services never know about HTTP."""
 
 
-class CustomerNotFound(Exception):
+class UserNotFound(Exception):
     pass
 
 
