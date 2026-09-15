@@ -16,4 +16,5 @@ media/
 
 # local testing
 local/
-*postman/
+*postman/*
+!postman/collections

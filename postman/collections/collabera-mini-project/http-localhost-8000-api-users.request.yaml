@@ -1,0 +1,8 @@
+$kind: http-request
+name: http://localhost:8000/api/users/3/accounts/
+url: http://localhost:8000/api/users/
+method: GET
+body:
+  type: json
+  content: ""
+order: 4418058337687052

@@ -1,0 +1,11 @@
+$kind: http-request
+name: http://localhost:8000/api/accounts/2/deposit/
+url: http://localhost:8000/api/accounts/2/deposit/
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "amount": 500
+    }
+order: 2443898322395744

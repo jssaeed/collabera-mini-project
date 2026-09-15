@@ -1,0 +1,11 @@
+$kind: http-request
+name: http://localhost:8000/api/accounts/1/withdraw/
+url: http://localhost:8000/api/accounts/1/withdraw/
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "amount": 20
+    }
+order: 2403445262988592

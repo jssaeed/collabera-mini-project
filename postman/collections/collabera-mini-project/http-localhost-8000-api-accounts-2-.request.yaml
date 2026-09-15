@@ -1,0 +1,5 @@
+$kind: http-request
+name: http://localhost:8000/api/accounts/2/
+url: http://localhost:8000/api/accounts/2/
+method: GET
+order: 1789496606126

@@ -1,0 +1,11 @@
+$kind: http-request
+name: http://localhost:8000/api/users/3/accounts/
+url: http://localhost:8000/api/users/3/accounts/
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "initial_deposit": 25
+    }
+order: 4204467797937952

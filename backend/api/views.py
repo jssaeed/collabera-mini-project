@@ -36,7 +36,7 @@ def _parse_json_body(request: HttpRequest) -> dict[str, Any] | None:
 
 def _parse_amount(raw: Any) -> Decimal | None:
     try:
-        return Decimal(str(raw))
+        return Decimal(str(raw)) # get rid of float noise
     except (InvalidOperation, ValueError, TypeError):
         return None
 

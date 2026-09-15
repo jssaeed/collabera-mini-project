@@ -47,7 +47,7 @@ class TransactionRepository:
         return [t for t in TRANSACTIONS if t['account_id'] == account_id]
 
     def create(self, account_id: int, txn_type: str, amount: Decimal) -> TransactionDict:
-        new_id = max((t['txn_id'] for t in TRANSACTIONS), default=0) + 1
+        new_id = max((t['txn_id'] for t in TRANSACTIONS), default=0) + 1    # autoincrement
         txn: TransactionDict = {
             'txn_id': new_id,
             'account_id': account_id,

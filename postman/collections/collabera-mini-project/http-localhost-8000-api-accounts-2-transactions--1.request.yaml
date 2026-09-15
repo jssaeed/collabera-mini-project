@@ -1,0 +1,5 @@
+$kind: http-request
+name: http://localhost:8000/api/accounts/2/transactions/
+url: http://localhost:8000/api/users/2/
+method: GET
+order: 4479879824928051
