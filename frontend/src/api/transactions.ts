@@ -12,3 +12,10 @@ export async function listTransactions(): Promise<Transaction[]> {
   const response = await client.get<{ transactions: Transaction[] }>('/transactions/')
   return response.data.transactions
 }
+
+export async function listAccountTransactions(accountId: number): Promise<Transaction[]> {
+  const response = await client.get<{ transactions: Transaction[] }>(
+    `/accounts/${accountId}/transactions/`,
+  )
+  return response.data.transactions
+}

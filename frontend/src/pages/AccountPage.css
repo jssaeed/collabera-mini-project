@@ -1,0 +1,45 @@
+.account-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.account-page-header h1 {
+  margin: 0;
+}
+
+.account-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.account-card {
+  width: 480px;
+  max-width: 100%;
+}
+
+.account-card .ant-statistic {
+  margin-bottom: 24px;
+}
+
+.account-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  color: inherit;
+  font: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.account-card-arrow {
+  font-size: 20px;
+  color: var(--text);
+}

@@ -127,3 +127,15 @@ code {
     padding: 40px 20px;
   }
 }
+
+.account-page {
+  margin: 0;
+}
+
+.account-page-tight {
+  padding-top: 24px;
+}
+
+.account-page-tight h1 {
+  margin-top: 0;
+}

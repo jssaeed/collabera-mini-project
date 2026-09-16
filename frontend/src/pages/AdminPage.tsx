@@ -110,25 +110,44 @@ function AdminPage() {
   if (error) return <Alert type="error" message={error} showIcon style={{ margin: 64 }} />
 
   return (
-    <section className="static-page admin-page">
+    <section className="static-page admin-page account-page account-page-tight">
       <Title level={1}>Database tables</Title>
       <Tabs
         items={[
           {
             key: 'users',
             label: `users (${users.length})`,
-            children: <Table rowKey="user_id" dataSource={users} columns={userColumns} />,
+            children: (
+              <Table
+                rowKey="user_id"
+                dataSource={users}
+                columns={userColumns}
+                pagination={{ pageSize: 7 }}
+              />
+            ),
           },
           {
             key: 'accounts',
             label: `accounts (${accounts.length})`,
-            children: <Table rowKey="account_id" dataSource={accounts} columns={accountColumns} />,
+            children: (
+              <Table
+                rowKey="account_id"
+                dataSource={accounts}
+                columns={accountColumns}
+                pagination={{ pageSize: 7 }}
+              />
+            ),
           },
           {
             key: 'transactions',
             label: `transactions (${transactions.length})`,
             children: (
-              <Table rowKey="txn_id" dataSource={transactions} columns={transactionColumns} />
+              <Table
+                rowKey="txn_id"
+                dataSource={transactions}
+                columns={transactionColumns}
+                pagination={{ pageSize: 7 }}
+              />
             ),
           },
         ]}
