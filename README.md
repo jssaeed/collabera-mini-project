@@ -14,11 +14,8 @@ The API is backed by Postgres.
 1. Create a database named `collabera_mini_project` (any owner works — the
    project was built against a local Postgres instance managed with
    pgAdmin, owner `postgres`).
-2. Copy `backend/.env` if you don't already have one, and set `DATABASE_URL`
-   to point at it:
-   ```
-   DATABASE_URL=postgres://<user>:<password>@localhost:5432/collabera_mini_project
-   ```
+2. Copy `backend/.env.local` to `.env` if you don't already have one, and set `DATABASE_URL`
+   to point at the Postgres DB
 3. Apply migrations:
    ```bash
    python manage.py migrate
@@ -34,5 +31,5 @@ The API is backed by Postgres.
 ### Run
 
 ```bash
-python manage.py runserver
+python manage.py runserver 0.0.0.0:8000
 ```
