@@ -66,6 +66,11 @@ def account_create(request: HttpRequest, user_id: int) -> JsonResponse:
     return JsonResponse(account, status=201)
 
 
+def account_list(request: HttpRequest) -> JsonResponse:
+    accounts = AccountService().list_accounts()
+    return JsonResponse({'accounts': accounts})
+
+
 def account_detail(request: HttpRequest, account_id: int) -> JsonResponse:
     try:
         account = AccountService().get_account(account_id)
@@ -121,4 +126,9 @@ def account_transactions(request: HttpRequest, account_id: int) -> JsonResponse:
         transactions = AccountService().list_transactions(account_id)
     except AccountNotFound as exc:
         return JsonResponse({'error': str(exc)}, status=404)
+    return JsonResponse({'transactions': transactions})
+
+
+def transaction_list(request: HttpRequest) -> JsonResponse:
+    transactions = AccountService().list_all_transactions()
     return JsonResponse({'transactions': transactions})

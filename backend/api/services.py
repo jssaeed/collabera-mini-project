@@ -46,6 +46,9 @@ class AccountService:
             self.transactions.create(account['account_id'], 'deposit', initial_deposit)
         return account
 
+    def list_accounts(self) -> list[AccountDict]:
+        return self.accounts.get_all()
+
     def get_account(self, account_id: int) -> AccountDict:
         account = self.accounts.get_by_id(account_id)
         if account is None:
@@ -73,3 +76,6 @@ class AccountService:
     def list_transactions(self, account_id: int) -> list[TransactionDict]:
         self.get_account(account_id)
         return self.transactions.get_by_account(account_id)
+
+    def list_all_transactions(self) -> list[TransactionDict]:
+        return self.transactions.get_all()

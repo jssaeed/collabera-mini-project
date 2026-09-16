@@ -50,6 +50,9 @@ class UserRepository:
 
 
 class AccountRepository:
+    def get_all(self) -> list[AccountDict]:
+        return [_account_to_dict(a) for a in Account.objects.all()]
+
     def get_by_id(self, account_id: int) -> AccountDict | None:
         account = Account.objects.filter(pk=account_id).first()
         return _account_to_dict(account) if account else None
@@ -66,6 +69,9 @@ class AccountRepository:
 
 
 class TransactionRepository:
+    def get_all(self) -> list[TransactionDict]:
+        return [_transaction_to_dict(t) for t in Transaction.objects.all()]
+
     def get_by_account(self, account_id: int) -> list[TransactionDict]:
         txns = Transaction.objects.filter(account_id=account_id)
         return [_transaction_to_dict(t) for t in txns]
