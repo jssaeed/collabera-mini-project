@@ -1,5 +1,5 @@
 $kind: http-request
-name: http://localhost:8000/api/users/3/accounts/
+name: http://localhost:8000/api/users/
 url: http://localhost:8000/api/users/
 method: GET
 body:
