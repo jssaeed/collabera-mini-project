@@ -1,29 +1,37 @@
 import { useState } from "react";
 import { Alert, Button, Card, Form, Input, Typography } from "antd";
 import { isAxiosError } from "axios";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
+import { createUser } from "../api/auth";
 import { useCurrentUser } from "../context/useCurrentUser";
 
 const { Title, Paragraph } = Typography;
 
-function LoginPage() {
+function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const { login } = useCurrentUser();
   const navigate = useNavigate();
 
-  async function handleLogIn(values: { email: string; password: string }) {
+  async function handleSignUp(values: {
+    name: string;
+    email: string;
+    password: string;
+  }) {
     setSubmitting(true);
     setError(null);
     try {
+      await createUser(values.name, values.email, values.password);
       await login(values.email, values.password);
       navigate("/account");
     } catch (err) {
       const status = isAxiosError(err) ? err.response?.status : null;
       setError(
-        status === 401
-          ? "Incorrect email or password."
-          : "Could not log in. Please try again.",
+        status === 409
+          ? "An account with that email already exists."
+          : status === 400
+            ? "Please check your details and try again."
+            : "Could not create account. Please try again.",
       );
     } finally {
       setSubmitting(false);
@@ -34,32 +42,36 @@ function LoginPage() {
     <section className="static-page login-page">
       <Card className="login-card">
         <span className="page-eyebrow">Collabera Bank</span>
-        <Title level={1}>Welcome back</Title>
-        <Paragraph type="secondary">Sign in to view your accounts.</Paragraph>
+        <Title level={1}>Create your account</Title>
+        <Paragraph type="secondary">
+          Sign up to start banking with us.
+        </Paragraph>
 
         {error && (
-          <Alert
-            className="login-notice"
-            type="error"
-            message={error}
-            showIcon
-          />
+          <Alert className="login-notice" type="error" message={error} showIcon />
         )}
 
-        <Form layout="vertical" onFinish={handleLogIn} requiredMark={false}>
+        <Form layout="vertical" onFinish={handleSignUp} requiredMark={false}>
+          <Form.Item
+            name="name"
+            label="Full name"
+            rules={[{ required: true, message: "Name is required." }]}
+          >
+            <Input size="large" autoComplete="name" autoFocus />
+          </Form.Item>
           <Form.Item
             name="email"
             label="Email"
             rules={[{ required: true, message: "Email is required." }]}
           >
-            <Input size="large" type="email" autoComplete="email" autoFocus />
+            <Input size="large" type="email" autoComplete="email" />
           </Form.Item>
           <Form.Item
             name="password"
             label="Password"
             rules={[{ required: true, message: "Password is required." }]}
           >
-            <Input.Password size="large" autoComplete="current-password" />
+            <Input.Password size="large" autoComplete="new-password" />
           </Form.Item>
           <Button
             type="primary"
@@ -68,16 +80,12 @@ function LoginPage() {
             block
             loading={submitting}
           >
-            Log in
+            Create account
           </Button>
         </Form>
-
-        <Paragraph className="login-signup-hint" type="secondary">
-          Don't have an account? <Link to="/signup">Create one</Link>
-        </Paragraph>
       </Card>
     </section>
   );
 }
 
-export default LoginPage;
+export default SignupPage;

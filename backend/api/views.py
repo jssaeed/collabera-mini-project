@@ -5,14 +5,22 @@ import json
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound, PermissionDenied
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.request import Request
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .exceptions import AccountNotFound, InsufficientFunds, InvalidAmount, UserNotFound
+from .exceptions import (
+    AccountNotFound,
+    EmailAlreadyInUse,
+    InsufficientFunds,
+    InvalidAmount,
+    UserNotFound,
+)
 from .services import AccountService, UserService
 from .types import AccountDict, UserDict
 
@@ -53,9 +61,50 @@ def auth_me(request: Request) -> JsonResponse:
     return JsonResponse({'kind': 'user', **_profile(request)})
 
 
-@api_view(['GET'])
-@permission_classes([IsAdminUser])
+def _parse_json_body(request: HttpRequest) -> dict[str, Any] | None:
+    if not request.body:
+        return {}
+    try:
+        body = json.loads(request.body)
+        return body if isinstance(body, dict) else None
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return None
+
+
+def _user_create(request: Request) -> JsonResponse:
+    body = _parse_json_body(request)
+    if body is None:
+        return JsonResponse({'error': 'invalid JSON body'}, status=400)
+
+    name = body.get('name')
+    email = body.get('email')
+    password = body.get('password')
+    if not name or not email or not password:
+        return JsonResponse(
+            {'error': 'name, email, and password are required'}, status=400,
+        )
+
+    try:
+        validate_email(email)
+    except ValidationError:
+        return JsonResponse({'error': 'invalid email address'}, status=400)
+
+    try:
+        user = UserService().create_user(name, email, password)
+    except EmailAlreadyInUse as exc:
+        return JsonResponse({'error': str(exc)}, status=409)
+
+    return JsonResponse(user, status=201)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
 def user_list(request: Request) -> JsonResponse:
+    if request.method == 'POST':
+        return _user_create(request)
+
+    if not request.user.is_staff:
+        raise PermissionDenied('Administrator access required.')
     users = UserService().list_users()
     return JsonResponse({'users': users})
 
@@ -68,16 +117,6 @@ def user_detail(request: Request, user_id: int) -> JsonResponse:
     if user is None:
         return JsonResponse({'error': 'not found'}, status=404)
     return JsonResponse(user)
-
-
-def _parse_json_body(request: HttpRequest) -> dict[str, Any] | None:
-    if not request.body:
-        return {}
-    try:
-        body = json.loads(request.body)
-        return body if isinstance(body, dict) else None
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return None
 
 
 def _parse_amount(raw: Any) -> Decimal | None:

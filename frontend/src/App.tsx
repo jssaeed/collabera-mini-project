@@ -7,6 +7,7 @@ import AccountPage from "./pages/AccountPage";
 import ContactPage from "./pages/ContactPage";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 import { Layout } from "antd";
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
           </Routes>
         </Layout.Content>
         <Footer />

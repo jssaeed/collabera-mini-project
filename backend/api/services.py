@@ -3,7 +3,13 @@ only talks to repositories (reads are passed by repository to make )."""
 
 from decimal import Decimal
 
-from .exceptions import AccountNotFound, InsufficientFunds, InvalidAmount, UserNotFound
+from .exceptions import (
+    AccountNotFound,
+    EmailAlreadyInUse,
+    InsufficientFunds,
+    InvalidAmount,
+    UserNotFound,
+)
 from .repositories import AccountRepository, TransactionRepository, UserRepository
 from .types import AccountDict, TransactionDict, UserDict
 
@@ -20,6 +26,11 @@ class UserService:
 
     def get_user_for_auth(self, auth_user_id: int) -> UserDict | None:
         return self.repository.get_by_auth_user_id(auth_user_id)
+
+    def create_user(self, name: str, email: str, password: str) -> UserDict:
+        if self.repository.email_exists(email):
+            raise EmailAlreadyInUse(f'a user with email {email} already exists')
+        return self.repository.create(name, email, password)
 
 
 class AccountService:

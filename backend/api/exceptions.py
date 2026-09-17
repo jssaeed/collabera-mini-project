@@ -6,6 +6,10 @@ class UserNotFound(Exception):
     pass
 
 
+class EmailAlreadyInUse(Exception):
+    pass
+
+
 class AccountNotFound(Exception):
     pass
 

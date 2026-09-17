@@ -164,6 +164,12 @@ code {
   margin-bottom: 24px;
 }
 
+.login-signup-hint {
+  margin-top: 16px;
+  margin-bottom: 0;
+  text-align: center;
+}
+
 .ant-statistic-content {
   font-variant-numeric: tabular-nums;
 }

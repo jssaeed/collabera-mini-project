@@ -7,8 +7,13 @@ data is stored.
 
 from decimal import Decimal
 
+from django.contrib.auth import get_user_model
+from django.db import transaction
+
 from .models import Account, Transaction, User
 from .types import AccountDict, TransactionDict, UserDict
+
+AuthUser = get_user_model()
 
 
 def _user_to_dict(user: User) -> UserDict:
@@ -51,6 +56,17 @@ class UserRepository:
     def get_by_auth_user_id(self, auth_user_id: int) -> UserDict | None:
         user = User.objects.filter(auth_user_id=auth_user_id).first()
         return _user_to_dict(user) if user else None
+
+    def email_exists(self, email: str) -> bool:
+        return User.objects.filter(email=email).exists()
+
+    def create(self, name: str, email: str, password: str) -> UserDict:
+        # Username matches the email since the frontend logs in with email,
+        # sent as the "username" field.
+        with transaction.atomic():
+            auth_user = AuthUser.objects.create_user(username=email, password=password)
+            user = User.objects.create(auth_user=auth_user, name=name, email=email)
+        return _user_to_dict(user)
 
 
 class AccountRepository:

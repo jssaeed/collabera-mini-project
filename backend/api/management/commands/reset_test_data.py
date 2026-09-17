@@ -27,12 +27,16 @@ class Command(BaseCommand):
         # Only remove non-superuser auth accounts tied to this reset, to avoid
         # deleting unrelated Django admin accounts you may have created manually.
         AuthUser.objects.filter(username__in=[p["email"] for p in TEST_PROFILES]).delete()
-        AuthUser.objects.filter(username="admin").delete()
+        AuthUser.objects.filter(username="admin@example.com").delete()
 
-        admin = AuthUser.objects.create_user(username="admin", password="admin")
+        # Username matches the email since the frontend logs in with email,
+        # sent as the "username" field.
+        admin = AuthUser.objects.create_user(username="admin@example.com", password="admin")
         admin.is_staff = True
         admin.save(update_fields=["is_staff"])
-        self.stdout.write(self.style.SUCCESS("Created admin (username=admin, password=admin)."))
+        self.stdout.write(
+            self.style.SUCCESS("Created admin (username=admin@example.com, password=admin).")
+        )
 
         for profile in TEST_PROFILES:
             local_part = profile["email"].split("@", 1)[0]
