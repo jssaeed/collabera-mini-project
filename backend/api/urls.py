@@ -1,6 +1,7 @@
 from django.urls import URLPattern, path
 
 from . import views
+from rest_framework_simplejwt.views import TokenBlacklistView, TokenRefreshView
 
 urlpatterns: list[URLPattern] = [
     path('users/', views.user_list, name='user-list'),                                              #
@@ -16,4 +17,8 @@ urlpatterns: list[URLPattern] = [
         name='account-transactions',
     ),
     path('transactions/', views.transaction_list, name='transaction-list'),
+    path('auth/login/', views.LoginView.as_view(), name='auth-login'),
+    path('auth/refresh/', TokenRefreshView.as_view(), name='auth-refresh'),
+    path('auth/logout/', TokenBlacklistView.as_view(), name='auth-logout'),
+    path('auth/me/', views.auth_me, name='auth-me'),
 ]

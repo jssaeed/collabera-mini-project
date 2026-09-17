@@ -48,6 +48,10 @@ class UserRepository:
         user = User.objects.filter(pk=user_id).first()
         return _user_to_dict(user) if user else None
 
+    def get_by_auth_user_id(self, auth_user_id: int) -> UserDict | None:
+        user = User.objects.filter(auth_user_id=auth_user_id).first()
+        return _user_to_dict(user) if user else None
+
 
 class AccountRepository:
     def get_all(self) -> list[AccountDict]:
@@ -56,6 +60,12 @@ class AccountRepository:
     def get_by_id(self, account_id: int) -> AccountDict | None:
         account = Account.objects.filter(pk=account_id).first()
         return _account_to_dict(account) if account else None
+
+    def get_by_user(self, user_id: int) -> list[AccountDict]:
+        return [
+            _account_to_dict(account)
+            for account in Account.objects.filter(user_id=user_id)
+        ]
 
     def create(self, user_id: int, balance: Decimal, account_type: str) -> AccountDict:
         account = Account.objects.create(user_id=user_id, balance=balance, account_type=account_type)

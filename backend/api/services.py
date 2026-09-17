@@ -18,6 +18,9 @@ class UserService:
     def get_user(self, user_id: int) -> UserDict | None:
         return self.repository.get_by_id(user_id)
 
+    def get_user_for_auth(self, auth_user_id: int) -> UserDict | None:
+        return self.repository.get_by_auth_user_id(auth_user_id)
+
 
 class AccountService:
     def __init__(
@@ -83,3 +86,6 @@ class AccountService:
 
     def list_all_transactions(self) -> list[TransactionDict]:
         return self.transactions.get_all()
+
+    def list_accounts_for_user(self, user_id: int) -> list[AccountDict]:
+        return self.accounts.get_by_user(user_id)

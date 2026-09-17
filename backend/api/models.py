@@ -1,9 +1,17 @@
 """Defines the schema for the Django ORM models"""
 
 from django.db import models
+from django.conf import settings
 
 
 class User(models.Model):
+    auth_user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name='banking_profile',
+        null=True,
+        blank=True,
+    )
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
