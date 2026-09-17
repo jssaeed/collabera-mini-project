@@ -1,95 +1,94 @@
-import { AccountsIllustration, HeroIllustration, SecurityIllustration } from './illustrations'
-import './HomePage.css'
+import { Button, Card, Col, Row, Space, Tag, Typography } from "antd";
+import { useNavigate } from "react-router";
+import { useCurrentUser } from "../context/useCurrentUser";
+import { HeroIllustration } from "./illustrations";
+import "./HomePage.css";
 
-const securityFeatures = [
-  {
-    title: 'Bank-level encryption',
-    description:
-      'Every request between your device and our servers is encrypted end-to-end, so your account details stay private.',
-  },
-  {
-    title: 'Real-time fraud monitoring',
-    description:
-      'Every deposit and withdrawal is checked automatically, so unusual activity gets flagged before it becomes a problem.',
-  },
-  {
-    title: 'Multi-factor authentication',
-    description:
-      'Sign in with more than just a password. An extra verification step keeps your account safe even if your password leaks.',
-  },
-]
+const { Title, Paragraph, Text } = Typography;
 
-const managementFeatures = [
+const features = [
   {
-    title: 'Real-time balances',
-    description: 'Your checking and savings balances update the moment a transaction clears.',
+    title: "Your accounts, together",
+    description:
+      "View checking and savings accounts from one organized dashboard.",
   },
   {
-    title: 'Full transaction history',
-    description: 'Every deposit and withdrawal is logged, so you can see exactly where your money went.',
+    title: "A clearer transaction history",
+    description:
+      "Review deposits and withdrawals for each account in a straightforward table.",
   },
   {
-    title: 'Multiple accounts, one login',
-    description: 'Open both checking and savings accounts and manage them side by side from a single dashboard.',
+    title: "Everyday account management",
+    description:
+      "Create accounts and try deposit and withdrawal workflows in this training app.",
   },
-]
+];
 
 function HomePage() {
+  const navigate = useNavigate();
+  const { session } = useCurrentUser();
+
   return (
-    <>
-      <section className="hero">
+    <div className="home-page">
+      <section className="hero" aria-labelledby="hero-title">
         <div className="hero-text">
-          <h1>Banking that puts you back in control</h1>
-          <p className="hero-subtitle">
-            Track balances, review transactions, and manage every account you own from one simple
-            dashboard.
-          </p>
-          <a className="btn btn-primary btn-lg" href="/login">
-            Log in to your account
-          </a>
+          <Tag color="cyan">A fresh perspective on banking</Tag>
+          <Title id="hero-title" level={1}>
+            Less complexity.
+            <br />
+            More clarity.
+          </Title>
+          <Paragraph className="hero-subtitle">
+            Your balances, accounts, and activity — brought together in one
+            simple place.
+          </Paragraph>
+          <Space size="middle" wrap>
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => navigate(session ? "/account" : "/login")}
+            >
+              {session ? "View my accounts" : "Explore the demo"}
+            </Button>
+            <Button size="large" onClick={() => navigate("/about")}>
+              About the project
+            </Button>
+          </Space>
+          <Text type="secondary" className="hero-note">
+            Built for learning. No real money or banking services.
+          </Text>
         </div>
         <div className="hero-illustration">
           <HeroIllustration />
         </div>
       </section>
 
-      <section className="feature-section">
+      <section className="feature-section" aria-labelledby="features-title">
         <div className="feature-section-header">
-          <div className="section-illustration section-illustration-sm">
-            <SecurityIllustration />
-          </div>
-          <h2>Security you can trust</h2>
-          <p>We treat your money and your data with the same level of care.</p>
+          <span className="page-eyebrow">Designed around your day</span>
+          <Title id="features-title" level={2}>
+            Everything in a clearer view
+          </Title>
+          <Paragraph type="secondary">
+            Familiar banking tasks, without the clutter.
+          </Paragraph>
         </div>
-        <div className="feature-grid">
-          {securityFeatures.map((feature) => (
-            <div className="feature-card" key={feature.title}>
-              <h3>{feature.title}</h3>
-              <p>{feature.description}</p>
-            </div>
+        <Row gutter={[24, 24]}>
+          {features.map((feature, index) => (
+            <Col xs={24} md={8} key={feature.title}>
+              <Card className="feature-card">
+                <span className="feature-number" aria-hidden="true">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <Title level={3}>{feature.title}</Title>
+                <Paragraph type="secondary">{feature.description}</Paragraph>
+              </Card>
+            </Col>
           ))}
-        </div>
+        </Row>
       </section>
-
-      <section className="feature-section feature-section-alt">
-        <div className="feature-section-header">
-          <div className="section-illustration">
-            <AccountsIllustration />
-          </div>
-          <h2>Manage every account in one place</h2>
-          <p>No spreadsheets, no guesswork — just a clear view of where you stand.</p>
-        </div>
-        <div className="feature-grid">
-          {managementFeatures.map((feature) => (
-            <div className="feature-card" key={feature.title}>
-              <h3>{feature.title}</h3>
-              <p>{feature.description}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-    </>
-  )
+    </div>
+  );
 }
 
-export default HomePage
+export default HomePage;

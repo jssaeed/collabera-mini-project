@@ -5,7 +5,7 @@ import json
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
@@ -71,9 +71,15 @@ def account_list(request: HttpRequest) -> JsonResponse:
     return JsonResponse({'accounts': accounts})
 
 
-def account_detail(request: HttpRequest, account_id: int) -> JsonResponse:
+@csrf_exempt
+@require_http_methods(['GET', 'DELETE'])
+def account_detail(request: HttpRequest, account_id: int) -> HttpResponse:
+    service = AccountService()
     try:
-        account = AccountService().get_account(account_id)
+        if request.method == 'DELETE':
+            service.delete_account(account_id)
+            return HttpResponse(status=204)
+        account = service.get_account(account_id)
     except AccountNotFound as exc:
         return JsonResponse({'error': str(exc)}, status=404)
     return JsonResponse(account)

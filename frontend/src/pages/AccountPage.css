@@ -2,44 +2,80 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 20px;
   flex-wrap: wrap;
+  margin-bottom: 28px;
 }
 
-.account-page-header h1 {
-  margin: 0;
+.account-page-header h1.ant-typography {
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+
+.account-page-header .ant-typography:last-child {
+  margin-bottom: 0;
+}
+
+.balance-overview {
+  margin-bottom: 36px;
+  background: linear-gradient(120deg, #e9f5f2, #fff);
+  border-color: #c6e2da;
+}
+
+.balance-overview-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.balance-overview .ant-statistic-content {
+  color: var(--text-h);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 700;
+}
+
+.accounts-heading.ant-typography {
+  font-size: 22px;
 }
 
 .account-cards {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
-  margin-top: 24px;
 }
 
 .account-card {
-  width: 480px;
-  max-width: 100%;
+  min-width: 0;
+  box-shadow: 0 6px 24px rgb(20 36 59 / 4%);
 }
 
 .account-card .ant-statistic {
   margin-bottom: 24px;
 }
 
-.account-card-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  color: inherit;
-  font: inherit;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+.account-card .ant-statistic-content {
+  font-size: clamp(26px, 3vw, 36px);
+  font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
-.account-card-arrow {
-  font-size: 20px;
-  color: var(--text);
+.history-button.ant-btn {
+  display: block;
+  margin-top: 20px;
+  padding-inline: 0;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-h);
+  font-weight: 600;
+}
+
+@media (max-width: 700px) {
+  .account-cards {
+    grid-template-columns: 1fr;
+  }
 }

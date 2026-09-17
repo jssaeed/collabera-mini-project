@@ -73,6 +73,10 @@ class AccountService:
         self.transactions.create(account_id, 'withdrawal', amount)
         return updated
 
+    def delete_account(self, account_id: int) -> None:
+        if not self.accounts.delete(account_id):
+            raise AccountNotFound(f'account {account_id} does not exist')
+
     def list_transactions(self, account_id: int) -> list[TransactionDict]:
         self.get_account(account_id)
         return self.transactions.get_by_account(account_id)

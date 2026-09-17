@@ -67,6 +67,10 @@ class AccountRepository:
         account.save(update_fields=['balance'])
         return _account_to_dict(account)
 
+    def delete(self, account_id: int) -> bool:
+        deleted_count, _ = Account.objects.filter(pk=account_id).delete()
+        return deleted_count > 0
+
 
 class TransactionRepository:
     def get_all(self) -> list[TransactionDict]:
