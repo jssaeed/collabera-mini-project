@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{baseUrl}}/users/{{testUserId}}/accounts/"
+method: POST
+headers:
+  Authorization: Bearer {{accessToken}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "initial_deposit": 100,
+      "account_type": "checking"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('status is 201', () => pm.response.to.have.status(201));
+
+      const body = pm.response.json();
+      pm.test('balance matches initial_deposit', () => pm.expect(body.balance).to.eql('100.00'));
+
+      pm.collectionVariables.set('createdAccountId', body.account_id);
+    language: text/javascript
+order: 1000

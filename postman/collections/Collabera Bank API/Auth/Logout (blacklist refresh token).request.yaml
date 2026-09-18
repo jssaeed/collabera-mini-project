@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/logout/"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "refresh": "{{refreshToken}}"
+    }
+scripts:
+  - type: afterResponse
+    code: pm.test('status is 200', () => pm.response.to.have.status(200));
+    language: text/javascript
+order: 7000

@@ -37,11 +37,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Vite's default dev server origins.
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-]
+# Defaults to Vite's dev server origins; set CORS_ALLOWED_ORIGINS in the
+# environment for deployed origins (e.g. the CloudFront domain).
+CORS_ALLOWED_ORIGINS = env.list(
+    'CORS_ALLOWED_ORIGINS',
+    default=['http://localhost:5173', 'http://127.0.0.1:5173'],
+)
 
 ROOT_URLCONF = 'config.urls'
 

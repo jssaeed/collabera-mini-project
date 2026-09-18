@@ -1,0 +1,27 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/login/"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "username": "{{testUserEmail}}",
+      "password": "{{testUserPassword}}"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('status is 200', () => pm.response.to.have.status(200));
+
+      const body = pm.response.json();
+      pm.test('response has access and refresh tokens', () => {
+        pm.expect(body).to.have.property('access');
+        pm.expect(body).to.have.property('refresh');
+      });
+
+      pm.collectionVariables.set('accessToken', body.access);
+      pm.collectionVariables.set('refreshToken', body.refresh);
+    language: text/javascript
+order: 3000

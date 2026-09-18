@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{baseUrl}}/users/"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Postman Test User",
+      "email": "{{testUserEmail}}",
+      "password": "{{testUserPassword}}"
+    }
+scripts:
+  - type: afterResponse
+    code: pm.test('status is 409 (email already in use)', () => pm.response.to.have.status(409));
+    language: text/javascript
+order: 2000

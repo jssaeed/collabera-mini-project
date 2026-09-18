@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/accounts/{{createdAccountId}}/deposit/"
+method: POST
+headers:
+  Authorization: Bearer {{accessToken}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "amount": 50
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('status is 200', () => pm.response.to.have.status(200));
+
+      const body = pm.response.json();
+      pm.test('balance increased to 150.00', () => pm.expect(body.balance).to.eql('150.00'));
+    language: text/javascript
+order: 4000

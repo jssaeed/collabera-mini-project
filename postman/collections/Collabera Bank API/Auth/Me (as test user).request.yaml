@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/me/"
+method: GET
+headers:
+  Authorization: Bearer {{accessToken}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('status is 200', () => pm.response.to.have.status(200));
+
+      const body = pm.response.json();
+      pm.test('kind is user, not admin', () => pm.expect(body.kind).to.eql('user'));
+      pm.test('user_id matches the signed-up user', () => {
+        pm.expect(body.user_id).to.eql(pm.collectionVariables.get('testUserId'));
+      });
+    language: text/javascript
+order: 5000

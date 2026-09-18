@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/refresh/"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "refresh": "{{refreshToken}}"
+    }
+scripts:
+  - type: afterResponse
+    code: pm.test('status is 401 (token was blacklisted by logout)', () => pm.response.to.have.status(401));
+    language: text/javascript
+order: 8000

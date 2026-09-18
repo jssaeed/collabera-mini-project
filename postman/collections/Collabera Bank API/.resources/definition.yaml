@@ -1,0 +1,14 @@
+$kind: collection
+description: Covers every endpoint in backend/api/urls.py against the {{baseUrl}} environment variable. Run top-to-bottom within a folder — later requests depend on tokens/ids captured by earlier ones (see the Tests tab on each request).
+variables:
+  baseUrl: ""
+  adminEmail: ""
+  adminPassword: ""
+  testUserEmail: ""
+  testUserPassword: ""
+  testUserId: ""
+  createdAccountId: ""
+  accessToken: ""
+  refreshToken: ""
+  adminAccessToken: ""
+  adminRefreshToken: ""

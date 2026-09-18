@@ -1,0 +1,21 @@
+$kind: http-request
+name: Non-admin user CANNOT access admin transactions ("admin panel")
+url: "{{baseUrl}}/transactions/"
+method: GET
+headers:
+  Authorization: Bearer {{accessToken}}
+scripts:
+  - type: afterResponse
+    code: |-
+      // api/views.py: transaction_list is @permission_classes([IsAdminUser]) —
+      // the one endpoint in this API explicitly gated to admins only. This is
+      // the closest thing to an "admin panel" this app has (there's no
+      // django.contrib.admin site). A regular user's JWT must be rejected.
+      pm.test('status is 403 Forbidden', () => pm.response.to.have.status(403));
+
+      const body = pm.response.json();
+      pm.test('response is an error, not transaction data', () => {
+        pm.expect(body).to.not.have.property('transactions');
+      });
+    language: text/javascript
+order: 1000

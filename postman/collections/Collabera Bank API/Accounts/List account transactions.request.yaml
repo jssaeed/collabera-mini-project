@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{baseUrl}}/accounts/{{createdAccountId}}/transactions/"
+method: GET
+headers:
+  Authorization: Bearer {{accessToken}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('status is 200', () => pm.response.to.have.status(200));
+
+      const body = pm.response.json();
+      pm.test('transactions is an array with the deposit and withdraw', () => {
+        pm.expect(body.transactions).to.be.an('array');
+        pm.expect(body.transactions.length).to.be.at.least(2);
+      });
+    language: text/javascript
+order: 7000

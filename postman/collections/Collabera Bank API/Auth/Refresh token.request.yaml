@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/refresh/"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "refresh": "{{refreshToken}}"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('status is 200', () => pm.response.to.have.status(200));
+
+      const body = pm.response.json();
+      pm.test('response has a new access token', () => pm.expect(body).to.have.property('access'));
+
+      pm.collectionVariables.set('accessToken', body.access);
+      // ROTATE_REFRESH_TOKENS is on, so a fresh refresh token comes back too.
+      if (body.refresh) pm.collectionVariables.set('refreshToken', body.refresh);
+    language: text/javascript
+order: 6000

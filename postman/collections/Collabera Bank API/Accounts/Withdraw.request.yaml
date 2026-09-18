@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/accounts/{{createdAccountId}}/withdraw/"
+method: POST
+headers:
+  Authorization: Bearer {{accessToken}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "amount": 30
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('status is 200', () => pm.response.to.have.status(200));
+
+      const body = pm.response.json();
+      pm.test('balance decreased to 120.00', () => pm.expect(body.balance).to.eql('120.00'));
+    language: text/javascript
+order: 5000

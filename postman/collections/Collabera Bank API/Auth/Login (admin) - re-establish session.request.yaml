@@ -1,0 +1,40 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/login/"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "username": "{{adminEmail}}",
+      "password": "{{adminPassword}}"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('status is 200', () => pm.response.to.have.status(200));
+
+      const body = pm.response.json();
+      pm.collectionVariables.set('adminAccessToken', body.access);
+      pm.collectionVariables.set('adminRefreshToken', body.refresh);
+
+      // Also re-login the test user, since its token was blacklisted above and
+      // later requests in other folders reuse {{accessToken}}.
+      pm.sendRequest({
+        url: pm.collectionVariables.get('baseUrl') + '/auth/login/',
+        method: 'POST',
+        header: { 'Content-Type': 'application/json' },
+        body: { mode: 'raw', raw: JSON.stringify({
+          username: pm.collectionVariables.get('testUserEmail'),
+          password: pm.collectionVariables.get('testUserPassword'),
+        }) },
+      }, (err, res) => {
+        if (!err && res.code === 200) {
+          const json = res.json();
+          pm.collectionVariables.set('accessToken', json.access);
+          pm.collectionVariables.set('refreshToken', json.refresh);
+        }
+      });
+    language: text/javascript
+order: 9000
