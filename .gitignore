@@ -18,6 +18,7 @@ media/
 local/
 *postman/*
 !postman/collections
+!postman/joseph*
 
 # Terraform
 infra/terraform.tfvars

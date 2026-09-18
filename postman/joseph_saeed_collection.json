@@ -1,0 +1,689 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-4a7b-8c9d-collabera0001",
+    "name": "Collabera Bank API",
+    "description": "Covers every endpoint in backend/api/urls.py against the {{baseUrl}} environment variable. Run top-to-bottom within a folder — later requests depend on tokens/ids captured by earlier ones (see the Tests tab on each request).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Signup (create user)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const unique = Date.now();",
+                  "pm.collectionVariables.set('testUserEmail', `pmtest${unique}@example.com`);",
+                  "pm.collectionVariables.set('testUserPassword', 'Testpass123!');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('response has a user_id, name, email', () => {",
+                  "  pm.expect(body).to.have.property('user_id');",
+                  "  pm.expect(body).to.have.property('name', 'Postman Test User');",
+                  "  pm.expect(body).to.have.property('email', pm.collectionVariables.get('testUserEmail'));",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set('testUserId', body.user_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Test User\",\n  \"email\": \"{{testUserEmail}}\",\n  \"password\": \"{{testUserPassword}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/users/", "host": ["{{baseUrl}}"], "path": ["users", ""] }
+          }
+        },
+        {
+          "name": "Signup - duplicate email fails",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 409 (email already in use)', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Test User\",\n  \"email\": \"{{testUserEmail}}\",\n  \"password\": \"{{testUserPassword}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/users/", "host": ["{{baseUrl}}"], "path": ["users", ""] }
+          }
+        },
+        {
+          "name": "Login (test user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('response has access and refresh tokens', () => {",
+                  "  pm.expect(body).to.have.property('access');",
+                  "  pm.expect(body).to.have.property('refresh');",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set('accessToken', body.access);",
+                  "pm.collectionVariables.set('refreshToken', body.refresh);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{testUserEmail}}\",\n  \"password\": \"{{testUserPassword}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login/", "host": ["{{baseUrl}}"], "path": ["auth", "login", ""] }
+          }
+        },
+        {
+          "name": "Login - wrong password fails",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{testUserEmail}}\",\n  \"password\": \"definitely-wrong\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login/", "host": ["{{baseUrl}}"], "path": ["auth", "login", ""] }
+          }
+        },
+        {
+          "name": "Me (as test user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('kind is user, not admin', () => pm.expect(body.kind).to.eql('user'));",
+                  "pm.test('user_id matches the signed-up user', () => {",
+                  "  pm.expect(body.user_id).to.eql(pm.collectionVariables.get('testUserId'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me/", "host": ["{{baseUrl}}"], "path": ["auth", "me", ""] }
+          }
+        },
+        {
+          "name": "Refresh token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('response has a new access token', () => pm.expect(body).to.have.property('access'));",
+                  "",
+                  "pm.collectionVariables.set('accessToken', body.access);",
+                  "// ROTATE_REFRESH_TOKENS is on, so a fresh refresh token comes back too.",
+                  "if (body.refresh) pm.collectionVariables.set('refreshToken', body.refresh);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refresh\": \"{{refreshToken}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/refresh/", "host": ["{{baseUrl}}"], "path": ["auth", "refresh", ""] }
+          }
+        },
+        {
+          "name": "Logout (blacklist refresh token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refresh\": \"{{refreshToken}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/logout/", "host": ["{{baseUrl}}"], "path": ["auth", "logout", ""] }
+          }
+        },
+        {
+          "name": "Refresh - blacklisted token fails",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 401 (token was blacklisted by logout)', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refresh\": \"{{refreshToken}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/refresh/", "host": ["{{baseUrl}}"], "path": ["auth", "refresh", ""] }
+          }
+        },
+        {
+          "name": "Login (admin) - re-establish session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('adminAccessToken', body.access);",
+                  "pm.collectionVariables.set('adminRefreshToken', body.refresh);",
+                  "",
+                  "// Also re-login the test user, since its token was blacklisted above and",
+                  "// later requests in other folders reuse {{accessToken}}.",
+                  "pm.sendRequest({",
+                  "  url: pm.collectionVariables.get('baseUrl') + '/auth/login/',",
+                  "  method: 'POST',",
+                  "  header: { 'Content-Type': 'application/json' },",
+                  "  body: { mode: 'raw', raw: JSON.stringify({",
+                  "    username: pm.collectionVariables.get('testUserEmail'),",
+                  "    password: pm.collectionVariables.get('testUserPassword'),",
+                  "  }) },",
+                  "}, (err, res) => {",
+                  "  if (!err && res.code === 200) {",
+                  "    const json = res.json();",
+                  "    pm.collectionVariables.set('accessToken', json.access);",
+                  "    pm.collectionVariables.set('refreshToken', json.refresh);",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login/", "host": ["{{baseUrl}}"], "path": ["auth", "login", ""] }
+          }
+        },
+        {
+          "name": "Me (as admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('kind is admin', () => pm.expect(body.kind).to.eql('admin'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminAccessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me/", "host": ["{{baseUrl}}"], "path": ["auth", "me", ""] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List users (as admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('response has a users array', () => pm.expect(body.users).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminAccessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/users/", "host": ["{{baseUrl}}"], "path": ["users", ""] }
+          }
+        },
+        {
+          "name": "Get own user (as test user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('email matches', () => pm.expect(body.email).to.eql(pm.collectionVariables.get('testUserEmail')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{testUserId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{testUserId}}", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Accounts",
+      "item": [
+        {
+          "name": "Create account (as test user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('balance matches initial_deposit', () => pm.expect(body.balance).to.eql('100.00'));",
+                  "",
+                  "pm.collectionVariables.set('createdAccountId', body.account_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"initial_deposit\": 100,\n  \"account_type\": \"checking\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{testUserId}}/accounts/",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{testUserId}}", "accounts", ""]
+            }
+          }
+        },
+        {
+          "name": "List accounts (as test user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('includes the account just created', () => {",
+                  "  const ids = body.accounts.map(a => a.account_id);",
+                  "  pm.expect(ids).to.include(pm.collectionVariables.get('createdAccountId'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/accounts/", "host": ["{{baseUrl}}"], "path": ["accounts", ""] }
+          }
+        },
+        {
+          "name": "Get account (as test user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('account_id matches', () => pm.expect(body.account_id).to.eql(pm.collectionVariables.get('createdAccountId')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/accounts/{{createdAccountId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["accounts", "{{createdAccountId}}", ""]
+            }
+          }
+        },
+        {
+          "name": "Deposit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('balance increased to 150.00', () => pm.expect(body.balance).to.eql('150.00'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"amount\": 50\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/accounts/{{createdAccountId}}/deposit/",
+              "host": ["{{baseUrl}}"],
+              "path": ["accounts", "{{createdAccountId}}", "deposit", ""]
+            }
+          }
+        },
+        {
+          "name": "Withdraw",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('balance decreased to 120.00', () => pm.expect(body.balance).to.eql('120.00'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"amount\": 30\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/accounts/{{createdAccountId}}/withdraw/",
+              "host": ["{{baseUrl}}"],
+              "path": ["accounts", "{{createdAccountId}}", "withdraw", ""]
+            }
+          }
+        },
+        {
+          "name": "Withdraw - insufficient funds fails",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"amount\": 999999\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/accounts/{{createdAccountId}}/withdraw/",
+              "host": ["{{baseUrl}}"],
+              "path": ["accounts", "{{createdAccountId}}", "withdraw", ""]
+            }
+          }
+        },
+        {
+          "name": "List account transactions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('transactions is an array with the deposit and withdraw', () => {",
+                  "  pm.expect(body.transactions).to.be.an('array');",
+                  "  pm.expect(body.transactions.length).to.be.at.least(2);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/accounts/{{createdAccountId}}/transactions/",
+              "host": ["{{baseUrl}}"],
+              "path": ["accounts", "{{createdAccountId}}", "transactions", ""]
+            }
+          }
+        },
+        {
+          "name": "Delete account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/accounts/{{createdAccountId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["accounts", "{{createdAccountId}}", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "List all transactions (as admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('response has a transactions array', () => pm.expect(body.transactions).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminAccessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/transactions/", "host": ["{{baseUrl}}"], "path": ["transactions", ""] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authorization checks",
+      "item": [
+        {
+          "name": "Non-admin user CANNOT access admin transactions (\"admin panel\")",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// api/views.py: transaction_list is @permission_classes([IsAdminUser]) —",
+                  "// the one endpoint in this API explicitly gated to admins only. This is",
+                  "// the closest thing to an \"admin panel\" this app has (there's no",
+                  "// django.contrib.admin site). A regular user's JWT must be rejected.",
+                  "pm.test('status is 403 Forbidden', () => pm.response.to.have.status(403));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('response is an error, not transaction data', () => {",
+                  "  pm.expect(body).to.not.have.property('transactions');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/transactions/", "host": ["{{baseUrl}}"], "path": ["transactions", ""] }
+          }
+        },
+        {
+          "name": "Non-admin user CANNOT list all users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 403 Forbidden', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/users/", "host": ["{{baseUrl}}"], "path": ["users", ""] }
+          }
+        },
+        {
+          "name": "No token CANNOT access admin transactions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 401 Unauthorized (no credentials at all)', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/transactions/", "host": ["{{baseUrl}}"], "path": ["transactions", ""] }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "" },
+    { "key": "adminEmail", "value": "" },
+    { "key": "adminPassword", "value": "" },
+    { "key": "testUserEmail", "value": "" },
+    { "key": "testUserPassword", "value": "" },
+    { "key": "testUserId", "value": "" },
+    { "key": "createdAccountId", "value": "" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "adminAccessToken", "value": "" },
+    { "key": "adminRefreshToken", "value": "" }
+  ]
+}
